@@ -93,8 +93,11 @@ rreadlink() ( # Execute the function in a *subshell* to localize variables and t
   fi
 )
 
-DIR=$(dirname -- "$(rreadlink "$0")")
+# 路由器无公网ip
+# DIR=$(dirname -- "$(rreadlink "$0")")
 
+# 路由器有公网ip
+DIR=$(dirname — “$0”)
 # Global Variables:
 
 # Token-based Authentication
@@ -217,4 +220,4 @@ arDdnsCheck() {
 #    arDdnsCheck "${domains[index]}" "${subdomains[index]}"
 #done
 
-. $DIR/dns.conf
+. ./dns.conf
