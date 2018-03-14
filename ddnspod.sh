@@ -185,6 +185,38 @@ arDdnsUpdate() {
     fi
 }
 
+
+arDdnsUpdateWildCard() {                                                                                                                                  
+    local domainID recordID recordRS recordCD recordIP myIP                                                                                         
+    # Get domain ID                                                                                                                                 
+    domainID=$(arApiPost "Domain.Info" "domain=${1}")                                                                                               
+    domainID=$(echo $domainID | sed 's/.*{"id":"\([0-9]*\)".*/\1/')                                                                                 
+                                                                                                                                                    
+    # Get Record ID                                                                                                                                 
+    # recordID=$(arApiPost "Record.List" "domain_id=${domainID}&sub_domain=${2}")                                                                   
+    # recordID=$(echo $recordID | sed 's/.*\[{"id":"\([0-9]*\)".*/\1/')                                                                             
+    recordID=${2}                                                                                                                                   
+    # Update IP                                                                                                                                     
+    myIP=$(arIpAddress)                                                                                                                             
+    recordRS=$(arApiPost "Record.Ddns" "domain_id=${domainID}&record_id=${recordID}&sub_domain=*&record_type=A&value=${myIP}&record_line=默认")     
+    recordCD=$(echo $recordRS | sed 's/.*{"code":"\([0-9]*\)".*/\1/')                                                                               
+    recordIP=$(echo $recordRS | sed 's/.*,"value":"\([0-9\.]*\)".*/\1/')                                                                            
+                                                                                                                                                    
+    # Output IP                                                                                                                                     
+    if [ "$recordIP" = "$myIP" ]; then                                                                                                              
+        if [ "$recordCD" = "1" ]; then                                                                                                              
+            echo $recordIP                                                                                                                          
+            return 0                                                                                                                                
+        fi                                                                                                                                          
+        # Echo error message                                                                                                                        
+        echo $recordRS | sed 's/.*,"message":"\([^"]*\)".*/\1/'                                                                                     
+        return 1                                                                                                                                    
+    else                                                                                                                                            
+        echo "Update Failed! Please check your network."                                                                                            
+        return 1                                                                                                                                    
+    fi                                                                                                                                              
+} 
+
 # DDNS Check
 # Arg: Main Sub
 arDdnsCheck() {
